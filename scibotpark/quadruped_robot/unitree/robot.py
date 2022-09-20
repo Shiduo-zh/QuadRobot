@@ -30,10 +30,10 @@ class UniTreeRobot(DeltaPositionControlMixin, PybulletRobot):
             farVal= 10,
         ); self.camera_fov_kwargs.update(camera_fov_kwargs)
         self.default_joint_positions = [
-            0, 0.6, -1.9,
-            0, 0.6, -1.9,
-            0, 1.2, -2.0,
-            0, 1.2, -2.0,
+            0, 0.8, -1.8,
+            0, 0.8, -1.8,
+            0, 0.8, -1.8,
+            0, 0.8, -1.8,
         ] if default_joint_positions is None else default_joint_positions
         self.bullet_debug = bullet_debug
         self.valid_joint_types = [p.JOINT_REVOLUTE, p.JOINT_PRISMATIC]

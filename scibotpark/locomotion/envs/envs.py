@@ -182,7 +182,7 @@ class UnitreeLocomotionEnv(UnitreeForwardEnv):
             ]
             position, _=self.robot.pb_client.getBasePositionAndOrientation(self.robot.body_id)
             self.pb_client.applyExternalForce(self.robot.body_id, -1, external_force, position,  p.WORLD_FRAME)
-            # print('external! force is ',external_force)
+            print('external! force is ',external_force)
 
     def compute_reward(self):
         return self._task.compute_reward(self)
