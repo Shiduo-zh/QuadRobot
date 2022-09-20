@@ -59,8 +59,13 @@ class UnitreeForwardEnv(LocomotionEnv):
         )
 
         if self.include_vision_obs:
+            vision_space = spaces.Box(
+                low = np.zeros((self.render_kwargs['resolution'][0], self.render_kwargs['resolution'][0])),
+                high = np.ones((self.render_kwargs['resolution'][0], self.render_kwargs['resolution'][0]))
+            )
+
             observation_space = spaces.Dict(dict(
-                vision= base_observation_space["vision"],
+                vision = vision_space,
                 proprioceptive= observation_space,
             ))
 
@@ -76,7 +81,7 @@ class UnitreeForwardEnv(LocomotionEnv):
 
         if self.include_vision_obs:
             obs = dict(
-                vision= self.robot.get_onboard_camera_image(),
+                vision= self.robot.get_onboard_camera_image(**self.render_kwargs),
                 proprioceptive= obs,
             )
 

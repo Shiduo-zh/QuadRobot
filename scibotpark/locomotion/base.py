@@ -25,6 +25,12 @@ class LocomotionEnv(PybulletEnv, Env):
             nearVal= 0.01,
             farVal= 10,
         )
+        self.obs_types = obs_types
+        self.RobotCls = RobotCls
+        self.render_kwargs = render_kwargs
+        self.robot_kwargs = robot_kwargs
+        self.simulate_timestep = simulate_timestep
+        self.horizon = horizon
 
     def _build_robot(self):
         self._robot = self.RobotCls(pb_client= self.pb_client, **self.robot_kwargs)
