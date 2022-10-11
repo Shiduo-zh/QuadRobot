@@ -13,6 +13,7 @@ class GoalTask(Task):
                 target_velocity=None,
                 goal_position=(1,1,1),
                 timestep=1./500,
+                **kawrgs
                 ):
         """
         param:

@@ -2,9 +2,7 @@ import numpy as np
 import gym
 import pybullet as p
 from pybullet_utils import bullet_client
-from scibotpark.locomotion.envs.envs import UnitreeLocomotionEnv
-
-
+from urllib3 import connection_from_url
 from scibotpark.locomotion.envs.task import goaltask, forwardtask
 
 from scibotpark.locomotion.utils import get_default_randomization
@@ -32,7 +30,8 @@ def build_locomotion_env(
     task_kwargs: a dict for task configuration
     env_kwargs: a dict for basic locomotion environment configuration
     """
-    pb_client= bullet_client.BulletClient(connection_mode= p.GUI)  
+    connection_mode = p.DIRECT if kwargs['use_gui'] == False else p.GUI
+    pb_client= bullet_client.BulletClient(connection_mode = connection_mode) 
     # goal setting
     if goal:
         task = goaltask.GoalTask(**task_kwargs)

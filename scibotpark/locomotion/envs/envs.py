@@ -47,9 +47,9 @@ class UnitreeLocomotionEnv(UnitreeForwardEnv):
     def reset(self,*args,**kwargs):
         self.set_domain_rand()
         self.step_num=0
-        self.last_obs = np.zeros(self.prop_size*self.history_info_num['action'])  # last up to n times prop take by agent
+        self.last_obs = np.zeros(self.prop_size * self.history_info_num['action'])  # last up to n times prop take by agent
         self.last_action = np.zeros(self.action_size)  
-        self.images=np.zeros((self.history_info_num['image'],self.render_kwargs['resolution']**2))
+        self.images=np.zeros((self.history_info_num['image'] ,self.render_kwargs['resolution'][0]**2))
         return_=super().reset(*args,**kwargs)
         return return_    
 
@@ -75,10 +75,16 @@ class UnitreeLocomotionEnv(UnitreeForwardEnv):
         )
 
         if self.include_vision_obs:
-            observation_space = spaces.Dict(dict(
-                vision= base_observation_space["vision"],
-                proprioceptive= observation_space,
-            ))
+            # observation_space = spaces.Dict(dict(
+            #     vision= base_observation_space["vision"],
+            #     proprioceptive= observation_space,
+            # ))
+            observation_space = spaces.Box(
+                low = np.concatenate([observation_space.low,
+                                     np.array([0] * self.history_info_num['image'] * self.render_kwargs['resolution'][0]**2)]),
+                high = np.concatenate([observation_space.high,
+                                     np.array([1] * self.history_info_num['image'] * self.render_kwargs['resolution'][0]**2)])
+            )
 
         return observation_space
     
@@ -103,10 +109,12 @@ class UnitreeLocomotionEnv(UnitreeForwardEnv):
         self.images=self.images[1:]
 
         if self.include_vision_obs:
-            obs=dict(
-                proprioceptive = self.last_obs,
-                vision = self.images
-            )
+            # obs=dict(
+            #     proprioceptive = self.last_obs,
+            #     vision = self.images.reshape(-1)
+            # )
+            obs_image = self.images.reshape(-1)
+            obs = np.concatenate((self.last_obs, obs_image), axis = 0)
         else:
             obs = self.last_obs
         return obs
@@ -119,7 +127,7 @@ class UnitreeLocomotionEnv(UnitreeForwardEnv):
         self.step_simulation_from_action(action)
         obs = self._get_obs()
         reward,reward_info, done = self._task.compute_reward(self)
-        info=reward_info
+        info = reward_info
 
         return obs, reward, done, info
     
@@ -128,8 +136,8 @@ class UnitreeLocomotionEnv(UnitreeForwardEnv):
         set different domain randomization in different episodes
         """
         #pd control domain randomization
-        kp=random(self.domain_rand_config['pd control'][0][0],self.domain_rand_config[0][1])
-        kd=random(self.domain_rand_config['pd control'][1][0],self.domain_rand_config[1][1])
+        kp=random.uniform(self.domain_rand_config['pd control'][0][0],self.domain_rand_config['pd control'][0][1])
+        kd=random.uniform(self.domain_rand_config['pd control'][1][0],self.domain_rand_config['pd control'][1][1])
         for joint_id in self.robot.valid_joint_ids:
             self.robot.pb_client.setJointMotorControl2(self.robot.body_id,
                                                 joint_id,
@@ -182,7 +190,7 @@ class UnitreeLocomotionEnv(UnitreeForwardEnv):
             ]
             position, _=self.robot.pb_client.getBasePositionAndOrientation(self.robot.body_id)
             self.pb_client.applyExternalForce(self.robot.body_id, -1, external_force, position,  p.WORLD_FRAME)
-            print('external! force is ',external_force)
+            # print('external! force is ',external_force)
 
     def compute_reward(self):
         return self._task.compute_reward(self)
@@ -218,8 +226,10 @@ if __name__ == "__main__":
                 action = 3,
                 image =4,
             ),
-            step_rand_ratio = 1 
+            step_rand_ratio = 1,
+            surrounding='thin',
     )
+    print(env.observation_space)
 
     while(1):
         env.step(np.array(DEFAULT_ACTION))

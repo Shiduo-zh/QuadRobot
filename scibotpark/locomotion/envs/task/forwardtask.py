@@ -14,6 +14,7 @@ class ForwardTask(Task):
                 alive_roll_limit=np.pi/4,
                 subgoal_reward=None,
                 target_velocity=None,
+                **kwargs
                 ):
         """
         params:
@@ -51,7 +52,7 @@ class ForwardTask(Task):
         forward_reward = self.forward_weight*self._compute_forward_reward(env)
         energy_reward = self.energy_weight*self._compute_energy_reward(env)
         alive_reward = self.alive_weight
-        heading_reward = self.heading_weight*self._compute_energy_reward(env)
+        heading_reward = self.heading_weight*self._compute_heading_rerward(env)
 
         reward = forward_reward+energy_reward+alive_reward+heading_reward
         
